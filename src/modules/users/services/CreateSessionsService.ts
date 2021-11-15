@@ -3,6 +3,8 @@ import { getCustomRepository } from 'typeorm';
 import User from '../typeorm/entities/User';
 import { UserRepository } from '../typeorm/repositories/userRepository';
 import { compare } from 'bcryptjs';
+import { sign } from 'jsonwebtoken';
+import authConfig from '@config/authConfig';
 
 interface IRequest {
   email: string;
@@ -11,6 +13,7 @@ interface IRequest {
 
 interface IResponse {
   user: User;
+  token: string;
 }
 
 class CreateSessionService {
@@ -21,13 +24,18 @@ class CreateSessionService {
     if (!userExist) {
       throw new AppError('Incorrect password/email.', 401);
     }
-    const passwordConfig = await compare(password, userExist.password);
+    const passwordConfirm = await compare(password, userExist.password);
 
-    if (!passwordConfig) {
+    if (!passwordConfirm) {
       throw new AppError('Incorrect password.', 401);
     }
 
-    return { user: userExist };
+    const token = sign({}, `${authConfig.jwt.secret}`, {
+      subject: userExist.id,
+      expiresIn: authConfig.jwt.expiresIn,
+    });
+
+    return { user: userExist, token };
   }
 }
 
