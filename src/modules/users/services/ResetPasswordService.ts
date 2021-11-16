@@ -12,8 +12,8 @@ interface IRequest {
 
 class ResetPasswordService {
   public async execute({ password, token }: IRequest): Promise<void> {
-    const userRepository = await getCustomRepository(UserRepository);
-    const userTokenRepository = await getCustomRepository(UserTokensRepository);
+    const userRepository = getCustomRepository(UserRepository);
+    const userTokenRepository = getCustomRepository(UserTokensRepository);
 
     const userToken = await userTokenRepository.findByToken(token);
 
@@ -33,10 +33,10 @@ class ResetPasswordService {
     if (isAfter(Date.now(), compareDate)) {
       throw new AppError('Token expired.');
     }
+    const hashPassword = await hash(password, 8);
+    user.password = hashPassword;
 
-    user.password = await hash(password, 8);
-
-    userRepository.save(user);
+    await userRepository.save(user);
   }
 }
 
