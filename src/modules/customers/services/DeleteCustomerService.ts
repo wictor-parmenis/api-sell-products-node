@@ -11,7 +11,7 @@ class DeleteCustomerService {
     const customer = await customerRepository.findOne(id);
 
     if (!customer) {
-      throw new AppError('Product not found.');
+      throw new AppError('Customer not found.');
     }
 
     await customerRepository.remove(customer);
