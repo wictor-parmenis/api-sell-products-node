@@ -6,13 +6,12 @@ class RedisCache {
   private connected: boolean;
 
   constructor() {
-    this.client = new Redis(CacheConfig.config.redis);
+    // this.client = new Redis(CacheConfig.config.redis);
 
-    // if (!this.connected) {
-
-    //   this.client = new Redis(CacheConfig.config.redis);
-    //   this.connected = true;
-    // }
+    if (!this.connected) {
+      this.client = new Redis(CacheConfig.config.redis);
+      this.connected = true;
+    }
   }
 
   async save(key: string, value: any): Promise<void> {
@@ -36,4 +35,4 @@ class RedisCache {
   }
 }
 
-export default RedisCache;
+export default new RedisCache();
