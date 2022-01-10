@@ -1,3 +1,4 @@
+import RedisCache from '@shared/cache/RedisCache';
 import { AppError } from '@shared/errors/AppError';
 import { getCustomRepository } from 'typeorm';
 import Product from '../typeorm/entities/product';
@@ -18,12 +19,15 @@ class UpdateProductService {
     quantity,
   }: IRequest): Promise<Product | undefined> {
     const productsRepository = getCustomRepository(ProductRepository);
+    const keyProductCache = '@apivendas_PRODUCTS_LIST';
 
     const product = await productsRepository.findOne(id);
 
     if (!product) {
       throw new AppError('Product not exist.');
     }
+    const redisCache = new RedisCache();
+    await redisCache.invalidate(keyProductCache);
 
     const productExist = await productsRepository.findByName(name);
 
